@@ -1,0 +1,94 @@
+Test at 1 --------------------
+Step 1 System Setup
+Step 2 Data Processing
+Read a 1000 * 10 boolean matrix from disk
+Step 3 Computation
+at miner...
+at cloud...
+Step 4 Evaluation
+at evaluator...
+at cloud...
+Step 5 Comparison
+at cloud...
+at evaluator...
+Mining output: -1
+Cloud time: +4.449040e+005 milliseconds
+Evaluator time: +1.904852e+006 milliseconds
+Total time: +2.349964e+006 milliseconds
+
+Step 1 System Setup
+Step 2 Data Processing
+Read a 1000 * 20 boolean matrix from disk
+Step 3 Computation
+at miner...
+at cloud...
+Step 4 Evaluation
+at evaluator...
+at cloud...
+Step 5 Comparison
+at cloud...
+at evaluator...
+Mining output: -1
+Cloud time: +8.282840e+005 milliseconds
+Evaluator time: +1.867829e+006 milliseconds
+Total time: +2.696466e+006 milliseconds
+
+Step 1 System Setup
+Step 2 Data Processing
+Read a 1000 * 30 boolean matrix from disk
+Step 3 Computation
+at miner...
+at cloud...
+Step 4 Evaluation
+at evaluator...
+at cloud...
+Step 5 Comparison
+at cloud...
+at evaluator...
+Mining output: -1
+Cloud time: +1.221957e+006 milliseconds
+Evaluator time: +1.963572e+006 milliseconds
+Total time: +3.186027e+006 milliseconds
+
+Step 1 System Setup
+Step 2 Data Processing
+Read a 1000 * 40 boolean matrix from disk
+Step 3 Computation
+at miner...
+at cloud...
+Step 4 Evaluation
+at evaluator...
+at cloud...
+Step 5 Comparison
+at cloud...
+at evaluator...
+Mining output: -1
+Cloud time: +1.594407e+006 milliseconds
+Evaluator time: +1.887542e+006 milliseconds
+Total time: +3.482600e+006 milliseconds
+
+Step 1 System Setup
+Step 2 Data Processing
+Read a 1000 * 50 boolean matrix from disk
+Step 3 Computation
+at miner...
+at cloud...
+Step 4 Evaluation
+at evaluator...
+panic: could not find discrete log!
+
+goroutine 1 [running]:
+github.com/sachaservan/bgn.(*SecretKey).DecryptElementL2(0xc00176b200, 0xc00148c030, 0xc0000a20a0, 0xc0017f0001, 0x0)
+	/home/chenziyan/Qiu/go/qiu/src/github.com/sachaservan/bgn/bgn.go:263 +0x26d
+github.com/sachaservan/bgn.(*SecretKey).DecryptElementL2(0xc00176b200, 0xc000585380, 0xc0000a20a0, 0xc000a70600, 0xc001d207e0)
+	/home/chenziyan/Qiu/go/qiu/src/github.com/sachaservan/bgn/bgn.go:259 +0x212
+github.com/sachaservan/bgn.(*SecretKey).decryptL2(0xc00176b200, 0xc0005a22d0, 0xc0000a20a0, 0xc00190dcc8)
+	/home/chenziyan/Qiu/go/qiu/src/github.com/sachaservan/bgn/bgn.go:276 +0xc5
+github.com/sachaservan/bgn.(*SecretKey).Decrypt(0xc00176b200, 0xc0005a22d0, 0xc0000a20a0, 0xc0013fb200)
+	/home/chenziyan/Qiu/go/qiu/src/github.com/sachaservan/bgn/bgn.go:200 +0x1b8
+github.com/Airscope/evaluator.Evaluate(0xc0014a0000, 0x5dc, 0x6a0, 0xc0000a20a0, 0xc00176b200, 0xc00006c000, 0xc000c10b70, 0xc0000a20a0, 0x1f4)
+	/home/chenziyan/Qiu/go/qiu/src/github.com/Airscope/evaluator/evaluator.go:40 +0xa0
+github.com/Airscope/protocols.Run()
+	/home/chenziyan/Qiu/go/qiu/src/github.com/Airscope/protocols/protocol2.go:49 +0x634
+main.main()
+	/home/chenziyan/Qiu/go/qiu/src/github.com/Airscope/main/main.go:11 +0x84
