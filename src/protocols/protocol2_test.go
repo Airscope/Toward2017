@@ -1,6 +1,5 @@
 package protocols
 
-<<<<<<< HEAD
 import (
     "testing"
 )
@@ -13,10 +12,3 @@ func TestRun(t *testing.T) {
     //    println("-----------------------")
     //}
 }
-=======
-import "testing"
-
-func TestRun(t *testing.T) {
-	Run()
-}
->>>>>>> 776741279ca80cebcd71cf7a6900206b7bfa3665

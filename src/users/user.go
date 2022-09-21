@@ -18,7 +18,7 @@ func DataProcess(pk *bgn.PublicKey, m, n int) [][] *bgn.Ciphertext {
 	for i := 0; i < m; i++ {
 		tmp := make([] *bgn.Ciphertext, n)
 		for j := 0; j < n; j++ {
-			tmp[j] = pk.Encrypt(pk.NewPlaintext(big.NewFloat(trans[i][j])))
+			tmp[j] = pk.Encrypt(big.NewInt(int64(trans[i][j])))
 		}
 		encTrans[i] = tmp
 	}
@@ -36,7 +36,7 @@ func readTransactions(m, n int) [][] float64 {
 			}
 			trans = append(trans, tmp)
 		}
-	} else { 
+	} else {
 		for i := 0; i < m; i++ {
 			tmp := make([] float64, n)
 			for j := 0; j < n; j++ {
@@ -45,11 +45,9 @@ func readTransactions(m, n int) [][] float64 {
 			trans = append(trans, tmp)
 		}
         fmt.Printf("Read a %d * %d boolean matrix from disk\n", m, n)
-<<<<<<< HEAD
-        filePath := "/home/chenziyan/Qiu/go/qiu/src/github.com/Airscope/users/dataset_chess.txt"
-=======
-        filePath := "/home/z1y/qiu/src/github.com/Airscope/users/dataset_chess.txt"
->>>>>>> 776741279ca80cebcd71cf7a6900206b7bfa3665
+        wd, _ := os.Getwd()
+        filePath := (wd + "/../data/dataset_chess.txt")
+        println("Dataset filepath: " + filePath)
         file, err := os.OpenFile(filePath, os.O_RDONLY, 0600)
         if err != nil {
             println("Open file error.", err)

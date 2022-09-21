@@ -4,6 +4,7 @@ import (
 	"github.com/sachaservan/bgn"
 	"github.com/sachaservan/paillier"
 	"math/big"
+	gmp "github.com/ncw/gmp"
 )
 
 // Step 1: System Setup
@@ -26,7 +27,7 @@ func SystemSetup() (pkBGN *bgn.PublicKey, skBGN *bgn.SecretKey, pkPaillier *pail
 	pkBGN.PrecomputeTables(genG1, genGT)
 
 	// Generate Paillier key pair
-	skPaillier, pkPaillier = paillier.CreateKeyPair(160)
+	skPaillier, pkPaillier = paillier.KeyGen(160)
 	return
 }
 
@@ -36,23 +37,20 @@ func Evaluate(randomizedSet [] *bgn.Ciphertext, pkBGN *bgn.PublicKey, skBGN *bgn
 	transNum := len(randomizedSet)
 	v := make([]*paillier.Ciphertext, transNum)
 	for i := 0; i < transNum; i++ {
-<<<<<<< HEAD
         // println("Decrypt", i, "-th bgn ctxt")
-=======
->>>>>>> 776741279ca80cebcd71cf7a6900206b7bfa3665
-		ptxt := skBGN.Decrypt(randomizedSet[i], pkBGN)
+		ptxt, _ := skBGN.Decrypt(randomizedSet[i], pkBGN)
 		if ptxt.String() == "0" {
-			v[i] = pkPaillier.Encrypt(big.NewInt(1))
+			v[i] = pkPaillier.Encrypt(gmp.NewInt(1))
 		} else {
-			v[i] = pkPaillier.Encrypt(big.NewInt(0))
+			v[i] = pkPaillier.Encrypt(gmp.NewInt(0))
 		}
 	}
 	return v
 }
 
 func Compare(maskedFlag *paillier.Ciphertext, sk *paillier.SecretKey) int {
-	z := sk.Decrypt(maskedFlag)
-	halfN := big.NewInt(0)
-	halfN.Div(sk.N, big.NewInt(2))
+	z:= sk.Decrypt(maskedFlag)
+	halfN := gmp.NewInt(0)
+	halfN.Div(sk.N, gmp.NewInt(2))
 	return z.Cmp(halfN)
 }
