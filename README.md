@@ -63,3 +63,5 @@ golang官网被墙，更改代理即可
 未安装pbc和gmp库（pbc依赖gmp），安装即可
 - 安装教程：https://blog.csdn.net/qq_41977843/article/details/126765593
 
+## References
+Qiu, Shuo, et al. "Toward practical privacy-preserving frequent itemset mining on encrypted cloud data." IEEE Transactions on Cloud Computing 8.1 (2017): 312-323.
