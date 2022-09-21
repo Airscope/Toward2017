@@ -12,7 +12,7 @@ import (
 )
 
 func RunParallel() {
-	const M = 20
+	const M = 1000
 	const N = 20
 	const K = M / 2
 	const MINSUPP = M * 4 / 5

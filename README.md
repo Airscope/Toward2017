@@ -30,7 +30,7 @@ golang官网被墙，更改代理即可
     go env -w GOPROXY=https://goproxy.cn
 
 ## 4. 运行代码
-在src目录下输入以下代码即可
+在src目录下输入以下代码，运行结果保存在log目录下
 
     nohup go run . > ../log/log_yyyymmdd &
 
@@ -62,3 +62,4 @@ golang官网被墙，更改代理即可
 
 未安装pbc和gmp库（pbc依赖gmp），安装即可
 - 安装教程：https://blog.csdn.net/qq_41977843/article/details/126765593
+

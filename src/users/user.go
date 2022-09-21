@@ -4,6 +4,7 @@ import (
 	"github.com/sachaservan/bgn"
 	"math/big"
 	"math/rand"
+    "math"
     "os"
     "bufio"
     "io"
@@ -11,6 +12,40 @@ import (
     "strconv"
     "fmt"
 )
+
+func DataPacking(pk *bgn.PublicKey, m, n, numPacking, numInterval int) [][] *bgn.Ciphertext {
+	trans := readTransactions(m, n)
+    // 垂直packing，将trans[i][j]至trans[i][j+numPacking]packing为一个大整数
+    packedTrans := make([][] *big.Int, m / numPacking)
+
+    k10PowInterval := big.NewInt(int64(math.Pow(10, float64(numInterval)))) // 10 ^ numInterval
+
+    for i := 0; i < m / numPacking; i ++ {
+        packedTranRow := make([] *big.Int, n) // 1行packed的事务，长度为n，包含n个packed的数据
+        for j := 0; j < n; j++ {
+            packedInt := big.NewInt(0);
+            for k := 0; k < numPacking; k++ {
+                packedInt = packedInt.Add(packedInt, big.NewInt(int64(trans[i+k][j])))
+                if (k != numPacking - 1) {
+                    packedInt = packedInt.Mul(packedInt, k10PowInterval)
+                }
+            }
+            packedTranRow[j] = packedInt
+         }
+        packedTrans[i] = packedTranRow
+    }
+
+
+	encTrans := make([][] *bgn.Ciphertext, len(packedTrans))
+	for i := 0; i < len(packedTrans); i++ {
+		tmp := make([] *bgn.Ciphertext, n)
+		for j := 0; j < n; j++ {
+			tmp[j] = pk.Encrypt(packedTrans[i][j])
+		}
+		encTrans[i] = tmp
+	}
+	return encTrans
+}
 
 func DataProcess(pk *bgn.PublicKey, m, n int) [][] *bgn.Ciphertext {
 	trans := readTransactions(m, n)

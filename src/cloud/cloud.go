@@ -87,7 +87,7 @@ func asynComputeInnerProdRange(encTrans [][] *bgn.Ciphertext, start int, end int
 
 func innerProCC(encVec1, encVec2 [] *bgn.Ciphertext, pk *bgn.PublicKey) *bgn.Ciphertext {
     if len(encVec1) != len(encVec2) {
-        panic("length of vectors is not same")
+        panic("Lengths of encrypted vectors are not the same")
     }
 	ptxtZero := big.NewInt(0)
 	temp := pk.Encrypt(ptxtZero)
