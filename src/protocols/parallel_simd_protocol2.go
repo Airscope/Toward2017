@@ -12,40 +12,37 @@ import (
 
 )
 
-func RunSIMD() {
-	const M = 1000
+func RunParallelSIMD() {
+	const M = 3000
+	const N = 20
+	const K = M / 2
 	const MINSUPP = M * 4 / 5
-
-	const numPacking = 10 // packing的trans个数
+	const numPacking = 2 // packing的trans个数
+	numsCPU := []int{1,2,3,4,5,6,7,8,9,10,11,12}
+	numInterval := int(math.Floor(math.Log10(float64(N)))) + 1 // 保证不会溢出的最小packing间隔F
 
 	if (M % numPacking != 0) {
 		panic("M must be divided by numPacking.")
 	}
 
-    nRange := []int{20} // []int{10,20,30,40,50}
-
-    for i := range nRange {
-        N := nRange[i]
-		minInterval := int(math.Floor(math.Log10(float64(N)))) + 1 // 保证不会溢出的最小packing间隔F
-
-		const actualNumTrans = M / numPacking
-
-		const K = actualNumTrans / 2
+    for i := range numsCPU {
+        numCPU := numsCPU[i]
 
         var cloudTime int64
         var evaTime int64
         cloudTime = 0
         evaTime = 0
 
-		println("number of Packing is ", numPacking, "interval is ", minInterval)
+		println("----------------------\n[CPUs number: ", numCPU, "]")
+		println("[number of Packing is ", numPacking, ", the interval is ", numInterval, "]")
 
-	    println("Step 1 System Setup")
+		println("Step 1 System Setup")
 	    pkBGN, skBGN, pkPaillier, skPaillier := evaluator.SystemSetup()
 
 	    println("Step 2 Data Processing")
-	    encTrans := users.DataPacking(pkBGN, M, N, numPacking, minInterval)
+	    encTrans := users.DataProcess(pkBGN, M, N)
 
-	    println("Step 3 Computation")
+		println("Step 3 Parallel SIMD Computation")
 
         originStart := time.Now().UnixNano()
 	    println("at miner...")
@@ -53,17 +50,17 @@ func RunSIMD() {
         negL1Norm = pkBGN.Mult(negL1Norm, pkBGN.Encrypt(big.NewInt(1)))
 	    println("at cloud...")
         startTime := time.Now().UnixNano()
-	    randomizedSet := cloud.Compute(encTrans, encQuery, negL1Norm, pkBGN, K, N)
+	    randomizedSet := cloud.ParallelSIMDCompute(encTrans, encQuery, negL1Norm, pkBGN, skBGN, K, N, numCPU, numPacking, numInterval)
         cloudTime += time.Now().UnixNano() - startTime
 
 	    println("Step 4 Evaluation")
 	    println("at evaluator...")
         startTime = time.Now().UnixNano()
-	    v := evaluator.Evaluate(randomizedSet, pkBGN, skBGN, pkPaillier)
+	    v := evaluator.SIMDEvaluate(randomizedSet, pkBGN, skBGN, pkPaillier, M, K, numPacking, numInterval)
         evaTime += time.Now().UnixNano() - startTime
 	    println("at cloud...")
         startTime = time.Now().UnixNano()
-	    support := cloud.Evaluate(v, pkPaillier, actualNumTrans, K)
+	    support := cloud.ParallelSIMDEvaluate(v, pkPaillier, M, K)
         evaTime += time.Now().UnixNano() - startTime
 
 	    println("Step 5 Comparison")

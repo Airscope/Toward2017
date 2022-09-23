@@ -42,7 +42,7 @@ func RunSerial() {
         negL1Norm = pkBGN.Mult(negL1Norm, pkBGN.Encrypt(big.NewInt(1)))
 	    println("at cloud...")
         startTime := time.Now().UnixNano()
-	    randomizedSet := cloud.Compute(encTrans, encQuery, negL1Norm, pkBGN, K, N)
+	    randomizedSet := cloud.Compute(encTrans, encQuery, negL1Norm, pkBGN, skBGN, K, N)
         cloudTime += time.Now().UnixNano() - startTime
 
 	    println("Step 4 Evaluation")

@@ -7,19 +7,11 @@ import (
 func main() {
 	const TESTNUM = 1
 
-    println(">>>>>>>>>>>>>>>SIMD Protocol Start <<<<<<<<<<<<<<<<")
+    println(">>>>>>>>>>>>>>>Prallel SIMD Protocol 2 Start <<<<<<<<<<<<<<<<")
     for i := 0; i < TESTNUM; i++ {
         println("Test at", i+1, "times \n=================================")
-        protocols.RunSIMD()
+        protocols.RunParallelSIMD()
         println("==================================")
     }
-    println(">>>>>>>>>>>>>>>SIMD Protocol End.<<<<<<<<<<<<<<<<")
-
-    println("\n>>>>>>>>>>>>>>>Parallel Protocol Start <<<<<<<<<<<<<<<<")
-    for i := 0; i < TESTNUM; i++ {
-        println("Test at", i+1, "times \n=================================")
-        protocols.RunParallel()
-        println("==================================")
-    }
-    println(">>>>>>>>>>>>>>>Parallel Protocol End.<<<<<<<<<<<<<<<<")
+    println(">>>>>>>>>>>>>>>Prallel SIMD Protocol2 End.<<<<<<<<<<<<<<<<")
 }

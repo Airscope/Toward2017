@@ -4,6 +4,7 @@ import (
 	"github.com/sachaservan/bgn"
 	"github.com/sachaservan/paillier"
 	"math/big"
+	"math"
 	gmp "github.com/ncw/gmp"
 )
 
@@ -31,6 +32,44 @@ func SystemSetup() (pkBGN *bgn.PublicKey, skBGN *bgn.SecretKey, pkPaillier *pail
 	return
 }
 
+func SIMDEvaluate(randomizedSet [] *bgn.Ciphertext, pkBGN *bgn.PublicKey, skBGN *bgn.SecretKey,
+	pkPaillier *paillier.PublicKey, originM, originK, numPacking, numInterval int) []*paillier.Ciphertext {
+	randomizedSetNum := len(randomizedSet)
+	// v := make([]*paillier.Ciphertext, originM)
+	var v []*paillier.Ciphertext
+	k10PowInterval := big.NewInt(int64(math.Pow(10, float64(numInterval)))) // 10 ^ numInterval
+
+	for i := 0; i < randomizedSetNum; i++ {
+        // println("Decrypt", i, "-th bgn ctxt")
+		packedPtxt, err := skBGN.Decrypt(randomizedSet[i], pkBGN)
+		if (err != nil) {
+			panic("Error: BGN deryption failed." + err.Error())
+		}
+		unpackedPtxts := make([] *big.Int, numPacking)
+		for j := 0; j < numPacking; j ++ {
+			ten := big.NewInt(int64(10))
+			unpackedPtxts[j] = packedPtxt.Mod(packedPtxt, ten)
+			if (j != numPacking - 1) {
+				packedPtxt = packedPtxt.Div(packedPtxt, k10PowInterval)
+			}
+		}
+
+		for j:=0; j < numPacking; j++ {
+			if (unpackedPtxts[j].String() == "0") {
+				v = append(v, pkPaillier.Encrypt(gmp.NewInt(1)))
+			} else {
+				v = append(v, pkPaillier.Encrypt(gmp.NewInt(0)))
+			}
+		}
+	}
+	if (len(v) != originM + originK) {
+		println( "len(v)=",len(v), ", M=", originM, ", K=", originK)
+		panic("The length of v does not equal to M+K!")
+	}
+
+	return v
+}
+
 func Evaluate(randomizedSet [] *bgn.Ciphertext, pkBGN *bgn.PublicKey, skBGN *bgn.SecretKey,
 	pkPaillier *paillier.PublicKey) []*paillier.Ciphertext {
 
@@ -38,7 +77,10 @@ func Evaluate(randomizedSet [] *bgn.Ciphertext, pkBGN *bgn.PublicKey, skBGN *bgn
 	v := make([]*paillier.Ciphertext, transNum)
 	for i := 0; i < transNum; i++ {
         // println("Decrypt", i, "-th bgn ctxt")
-		ptxt, _ := skBGN.Decrypt(randomizedSet[i], pkBGN)
+		ptxt, err := skBGN.Decrypt(randomizedSet[i], pkBGN)
+		if (err != nil) {
+			panic("Error: BGN deryption failed." + err.Error())
+		}
 		if ptxt.String() == "0" {
 			v[i] = pkPaillier.Encrypt(gmp.NewInt(1))
 		} else {

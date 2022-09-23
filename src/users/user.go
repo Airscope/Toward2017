@@ -25,7 +25,7 @@ func DataPacking(pk *bgn.PublicKey, m, n, numPacking, numInterval int) [][] *bgn
         for j := 0; j < n; j++ {
             packedInt := big.NewInt(0);
             for k := 0; k < numPacking; k++ {
-                packedInt = packedInt.Add(packedInt, big.NewInt(int64(trans[i+k][j])))
+                packedInt = packedInt.Add(packedInt, big.NewInt(int64(trans[i*numPacking+k][j])))
                 if (k != numPacking - 1) {
                     packedInt = packedInt.Mul(packedInt, k10PowInterval)
                 }
