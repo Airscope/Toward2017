@@ -63,5 +63,16 @@ golang官网被墙，更改代理即可
 未安装pbc和gmp库（pbc依赖gmp），安装即可
 - 安装教程：https://blog.csdn.net/qq_41977843/article/details/126765593
 
+## 依赖项目/版本
+
+- [[bgn](https://github.com/sachaservan/bgn/tree/d0ab3643939c7d8fde1194e9ddefa5728b858dbb)] BGN encryption scheme implementation using Go
+
+    commit SHA: 45ab32a771996f67f204e42b94dfd6e60d25a77f
+
+- [[pallier](https://github.com/sachaservan/paillier)] Paillier encryption scheme with threshold decryption and zero-knowledge proof capabilities
+
+    commit SHA:  30237183ba29b1b833f964976a1591af397a529b
+
+
 ## References
 Qiu, Shuo, et al. "Toward practical privacy-preserving frequent itemset mining on encrypted cloud data." IEEE Transactions on Cloud Computing 8.1 (2017): 312-323.

@@ -2,6 +2,7 @@ package cloud
 
 import (
 	// "fmt"
+	"github.com/Airscope/Toward2017/utils"
 	"github.com/sachaservan/bgn"
 	"github.com/sachaservan/paillier"
 	"math/big"
@@ -15,6 +16,7 @@ import (
 type Callback func(ciphertexts [] *bgn.Ciphertext)
 
 var shuffleMap [] int
+
 
 func shuffle(encTrans [] *bgn.Ciphertext) [] *bgn.Ciphertext {
 	transNum := len(encTrans)
@@ -51,8 +53,8 @@ func makeDummyTrans(k, n int, pk *bgn.PublicKey) [][] *bgn.Ciphertext {
 	for i := 0; i < k; i++ {
 		tmp := make([] *bgn.Ciphertext, n)
 		for j := 0; j < n; j++ {
-			ptxt := int64(rand.Intn(2))
-			tmp[j] = pk.Encrypt(big.NewInt(ptxt))
+			ptxt := int(rand.Intn(2))
+			tmp[j] = pk.Encrypt(utils.BGNPlaintxt(pk, ptxt))
 		}
 		dummyTrans = append(dummyTrans, tmp)
 	}
@@ -91,16 +93,12 @@ func innerProCC(encVec1, encVec2 [] *bgn.Ciphertext, pk *bgn.PublicKey, sk *bgn.
     if len(encVec1) != len(encVec2) {
         panic("Lengths of encrypted vectors are not the same")
     }
-	ptxtZero := big.NewInt(0)
+	ptxtZero := utils.BGNPlaintxtOne(pk)
 	temp := pk.Encrypt(ptxtZero)
 
 	for i := 0; i < len(encVec1); i++ {
-		prod := pk.Mult(encVec1[i], encVec2[i])
-		temp = pk.Add(prod, temp)
-		// _, err := sk.Decrypt(temp, pk)
-		// if (err != nil) {
-		// 	panic("Error: BGN deryption failed." + err.Error())
-		// }
+		prod := pk.EMult(encVec1[i], encVec2[i])
+		temp = pk.EAdd(prod, temp)
 	}
 	return temp
 }
@@ -120,18 +118,30 @@ func ParallelSIMDCompute(encTrans [][] *bgn.Ciphertext, encQuery [] *bgn.Ciphert
 		for i := 0; i < numPackedTrans; i ++ {
 			packedTranRow := make([] *bgn.Ciphertext, n) // 1行packed的事务，长度为n，包含n个packed的数据
 			for j := 0; j < n; j++ {
-				packedCtxt := pk.Encrypt(big.NewInt(0))
-				k10PowInterval := big.NewInt(int64(math.Pow(10, float64(numInterval)))) // 10 ^ numInterval
+				packedCtxt := pk.Encrypt(utils.BGNPlaintxt(pk, 0))
+
+				k10PowInterval := big.NewFloat(math.Pow(10, float64(numInterval))) // 10 ^ numInterval
 				for k := 0; k < numPacking; k++ {
-					packedCtxt = pk.Add(packedCtxt, mergedTrans[i*numPacking+k][j])
+					packedCtxt = pk.EAdd(packedCtxt, mergedTrans[i*numPacking+k][j])
 					if (k != numPacking - 1) {
-						packedCtxt = pk.MultConst(packedCtxt, k10PowInterval)
+						packedCtxt = pk.EMultC(packedCtxt, k10PowInterval)
 					}
 				}
 				packedTranRow[j] = packedCtxt
 			 }
 			packedTrans[i] = packedTranRow
 		}
+
+		// 由于做了packing，会导致evaluator解密失败，且随机因子的取值范围只能缩得很小
+		// 为使算法正常运行，只能在这里重新加密
+		// decPackedTrans := make([][] *big.Int, len(packedTrans))
+		// for i := 0; i < len(packedTrans); i++ {
+		// 	for j:= 0; j < len(packedTrans[0]); j++ {
+		// 		ptxt := big.NewInt(int64(rand.Intn(2)))
+
+		// 		packedTrans[i][j] = pk.Encrypt(ptxt)
+		// 	}
+		// }
 
 		/** Parallelism **/
 		numTransPerCPU := numPackedTrans / numCPU
@@ -170,9 +180,9 @@ func ParallelSIMDCompute(encTrans [][] *bgn.Ciphertext, encQuery [] *bgn.Ciphert
 		/** Randomization **/
 		var randomizedSet [] *bgn.Ciphertext
 		for i := range packedProds {
-			sum := pk.Add(packedProds[i], negL1Norm)
-			randCoef := rand.Intn(8) + 1
-			w := pk.MultConst(sum, big.NewInt(int64(randCoef)))
+			sum := pk.EAdd(packedProds[i], negL1Norm)
+			randCoef := rand.Int() + 1
+			w := pk.EMultC(sum, big.NewFloat(float64(randCoef)))
 			randomizedSet = append(randomizedSet, w)
 		}
 		// CAUTION: DO NOT Randomization-shuffling, only DO multiply random coef.
@@ -183,18 +193,14 @@ func Compute(encTrans [][] *bgn.Ciphertext, encQuery [] *bgn.Ciphertext, negL1No
 	pk *bgn.PublicKey, sk *bgn.SecretKey, k, n int) [] *bgn.Ciphertext {
 
 	transProds := computeInnerProd(encTrans, encQuery, pk, sk)
-	// _, err := sk.Decrypt(transProds[0], pk)
-	// if (err != nil) {
-	// 	panic("Error: BGN deryption failed." + err.Error())
-	// }
 
 	dummyProds := computeInnerProd(makeDummyTrans(k, n, pk), encQuery, pk, sk)
 	mergedProds := append(transProds, dummyProds...)
 	var randomizedSet [] *bgn.Ciphertext
 	for i := range mergedProds {
-		sum := pk.Add(mergedProds[i], negL1Norm)
-		randCoef := rand.Intn(16) + 1
-		w := pk.MultConst(sum, big.NewInt(int64(randCoef)))
+		sum := pk.EAdd(mergedProds[i], negL1Norm)
+		randCoef := rand.Int() + 1
+		w := pk.EMultC(sum, big.NewFloat(float64(randCoef)))
 		randomizedSet = append(randomizedSet, w)
 	}
 

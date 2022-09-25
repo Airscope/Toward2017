@@ -1,8 +1,8 @@
 package users
 
 import (
+    "github.com/Airscope/Toward2017/utils"
 	"github.com/sachaservan/bgn"
-	"math/big"
 	"math/rand"
     "math"
     "os"
@@ -16,21 +16,21 @@ import (
 func DataPacking(pk *bgn.PublicKey, m, n, numPacking, numInterval int) [][] *bgn.Ciphertext {
 	trans := readTransactions(m, n)
     // 垂直packing，将trans[i][j]至trans[i][j+numPacking]packing为一个大整数
-    packedTrans := make([][] *big.Int, m / numPacking)
+    packedTrans := make([][] *bgn.Plaintext, m / numPacking)
 
-    k10PowInterval := big.NewInt(int64(math.Pow(10, float64(numInterval)))) // 10 ^ numInterval
+    k10PowInterval := int(math.Pow(10, float64(numInterval))) // 10 ^ numInterval
 
     for i := 0; i < m / numPacking; i ++ {
-        packedTranRow := make([] *big.Int, n) // 1行packed的事务，长度为n，包含n个packed的数据
+        packedTranRow := make([] *bgn.Plaintext, n) // 1行packed的事务，长度为n，包含n个packed的数据
         for j := 0; j < n; j++ {
-            packedInt := big.NewInt(0);
+            packedInt := 0
             for k := 0; k < numPacking; k++ {
-                packedInt = packedInt.Add(packedInt, big.NewInt(int64(trans[i*numPacking+k][j])))
+                packedInt = int(trans[i*numPacking+k][j]) + packedInt
                 if (k != numPacking - 1) {
-                    packedInt = packedInt.Mul(packedInt, k10PowInterval)
+                    packedInt = k10PowInterval * packedInt
                 }
             }
-            packedTranRow[j] = packedInt
+            packedTranRow[j] = utils.BGNPlaintxt(pk, packedInt)
          }
         packedTrans[i] = packedTranRow
     }
@@ -53,7 +53,7 @@ func DataProcess(pk *bgn.PublicKey, m, n int) [][] *bgn.Ciphertext {
 	for i := 0; i < m; i++ {
 		tmp := make([] *bgn.Ciphertext, n)
 		for j := 0; j < n; j++ {
-			tmp[j] = pk.Encrypt(big.NewInt(int64(trans[i][j])))
+			tmp[j] = pk.Encrypt(utils.BGNPlaintxt(pk, int(trans[i][j]), ))
 		}
 		encTrans[i] = tmp
 	}

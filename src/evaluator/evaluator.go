@@ -1,10 +1,12 @@
 package evaluator
 
 import (
+	"github.com/Airscope/Toward2017/utils"
 	"github.com/sachaservan/bgn"
 	"github.com/sachaservan/paillier"
 	"math/big"
 	"math"
+	"fmt"
 	gmp "github.com/ncw/gmp"
 )
 
@@ -20,13 +22,6 @@ func SystemSetup() (pkBGN *bgn.PublicKey, skBGN *bgn.SecretKey, pkPaillier *pail
 
 	pkBGN, skBGN, _ = bgn.NewKeyGen(keyBits, messageSpace, polyBase, fpScaleBase, fpPrecision, true)
 
-	genG1 := pkBGN.P.NewFieldElement()
-	genG1.PowBig(pkBGN.P, skBGN.Key)
-
-	genGT := pkBGN.Pairing.NewGT().Pair(pkBGN.P, pkBGN.P)
-	genGT.PowBig(genGT, skBGN.Key)
-	pkBGN.PrecomputeTables(genG1, genGT)
-
 	// Generate Paillier key pair
 	skPaillier, pkPaillier = paillier.KeyGen(160)
 	return
@@ -37,23 +32,25 @@ func SIMDEvaluate(randomizedSet [] *bgn.Ciphertext, pkBGN *bgn.PublicKey, skBGN 
 	randomizedSetNum := len(randomizedSet)
 	// v := make([]*paillier.Ciphertext, originM)
 	var v []*paillier.Ciphertext
-	k10PowInterval := big.NewInt(int64(math.Pow(10, float64(numInterval)))) // 10 ^ numInterval
-
+	k10PowInterval := int(math.Pow(10, float64(numInterval)))// 10 ^ numInterval
 	for i := 0; i < randomizedSetNum; i++ {
         // println("Decrypt", i, "-th bgn ctxt")
-		packedPtxt, err := skBGN.Decrypt(randomizedSet[i], pkBGN)
-		if (err != nil) {
-			panic("Error: BGN deryption failed." + err.Error())
+		packedPtxt := skBGN.Decrypt(randomizedSet[i], pkBGN)
+		if (packedPtxt == nil) {
+			panic("Error: BGN deryption failed.")
 		}
-		unpackedPtxts := make([] *big.Int, numPacking)
+		packedPtxtInt := 0
+		_, err := fmt.Sscan(packedPtxt.String(), &packedPtxtInt)
+		if (err != nil) {
+			println("strings Atoi error, ", err.Error())
+		}
+		unpackedPtxts := make([] *bgn.Plaintext, numPacking)
 		for j := 0; j < numPacking; j ++ {
-			ten := big.NewInt(int64(10))
-			unpackedPtxts[j] = packedPtxt.Mod(packedPtxt, ten)
+			unpackedPtxts[j] = utils.BGNPlaintxt(pkBGN, packedPtxtInt % 10)
 			if (j != numPacking - 1) {
-				packedPtxt = packedPtxt.Div(packedPtxt, k10PowInterval)
+				packedPtxtInt = packedPtxtInt / k10PowInterval
 			}
 		}
-
 		for j:=0; j < numPacking; j++ {
 			if (unpackedPtxts[j].String() == "0") {
 				v = append(v, pkPaillier.Encrypt(gmp.NewInt(1)))
@@ -77,9 +74,9 @@ func Evaluate(randomizedSet [] *bgn.Ciphertext, pkBGN *bgn.PublicKey, skBGN *bgn
 	v := make([]*paillier.Ciphertext, transNum)
 	for i := 0; i < transNum; i++ {
         // println("Decrypt", i, "-th bgn ctxt")
-		ptxt, err := skBGN.Decrypt(randomizedSet[i], pkBGN)
-		if (err != nil) {
-			panic("Error: BGN deryption failed." + err.Error())
+		ptxt := skBGN.Decrypt(randomizedSet[i], pkBGN)
+		if (ptxt == nil) {
+			panic("Error: BGN deryption failed.")
 		}
 		if ptxt.String() == "0" {
 			v[i] = pkPaillier.Encrypt(gmp.NewInt(1))

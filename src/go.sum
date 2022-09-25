@@ -2,6 +2,10 @@ github.com/Nik-U/pbc v0.0.0-20181205041846-3e516ca0c5d6 h1:GU/vL5sj0IgGYEOIIAJ1H
 github.com/Nik-U/pbc v0.0.0-20181205041846-3e516ca0c5d6/go.mod h1:Zt2U1SemYWNGXqS1fDiZC7u74nsJTAnWK5WVgvI8OAs=
 github.com/ncw/gmp v1.0.4 h1:/f+vRpbpMIqDWfTGqYgCIuhoVfiyVf0ygsnwayqjGwU=
 github.com/ncw/gmp v1.0.4/go.mod h1:cDbCx93DFhzP32H3rnwwt6QnIXNL5wu4jLPCNaExheI=
+github.com/sachaservan/bgn v0.0.0-20180224153333-45ab32a77199 h1:xgkCT+PdDg/mxuGBJv02X2wDsk7DNJG0fTbPaB3pvTk=
+github.com/sachaservan/bgn v0.0.0-20180224153333-45ab32a77199/go.mod h1:jEXIJuHS9U/clwiZWtHRSpt5WQ9YjJ45KKf1PrB6VQU=
+github.com/sachaservan/bgn v0.0.0-20200225143653-64598d65a153 h1:/7FNSxWQaXSJ9Ne7k+aBu4aIsX7Zci6aloHLxspOpdY=
+github.com/sachaservan/bgn v0.0.0-20200225143653-64598d65a153/go.mod h1:jEXIJuHS9U/clwiZWtHRSpt5WQ9YjJ45KKf1PrB6VQU=
 github.com/sachaservan/bgn v0.0.0-20200905134347-0206925573bd h1:cyZjaaUpP+tIjczLPRErMx1T+QqIp7sSSqwHFxhaEWw=
 github.com/sachaservan/bgn v0.0.0-20200905134347-0206925573bd/go.mod h1:fv+qDUmyYbJ19CPZOu+CraBiJxOuqbxstyzhBILmZEQ=
 github.com/sachaservan/paillier v0.0.0-20201119232153-30237183ba29 h1:XcW8sowzMMSw0k/1rV94Hg6vKt/y2mii0HUkULq6YxI=

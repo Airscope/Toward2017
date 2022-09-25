@@ -1,11 +1,11 @@
 package protocols
 
 import (
+	"github.com/Airscope/Toward2017/utils"
 	"github.com/Airscope/Toward2017/cloud"
 	"github.com/Airscope/Toward2017/evaluator"
 	"github.com/Airscope/Toward2017/miner"
 	"github.com/Airscope/Toward2017/users"
-	"math/big"
     "time"
 	gmp "github.com/ncw/gmp"
 
@@ -39,7 +39,7 @@ func RunSerial() {
         originStart := time.Now().UnixNano()
 	    println("at miner...")
 	    encQuery, negL1Norm := miner.Compute(pkBGN, N)
-        negL1Norm = pkBGN.Mult(negL1Norm, pkBGN.Encrypt(big.NewInt(1)))
+        negL1Norm = pkBGN.EMult(negL1Norm, pkBGN.Encrypt(utils.BGNPlaintxt(pkBGN, 1)))
 	    println("at cloud...")
         startTime := time.Now().UnixNano()
 	    randomizedSet := cloud.Compute(encTrans, encQuery, negL1Norm, pkBGN, skBGN, K, N)
